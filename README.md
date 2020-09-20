@@ -1,0 +1,2 @@
+# ragy
+R a gyakorlatban
