@@ -1,0 +1,50 @@
+# Abari Kálmán
+# 2020. 09. 19.
+# Mentális képek vizsgálata
+
+# A feladat
+# Egy kísérletben azt vizsgálták, hogy milyen gyorsasággal tudják a résztvevők megállapítani két állatról, hogy melyik a nagyobb. Két szituációval találkozott minden résztvevő. Az első esetben nagy különbség volt a két állat méretében (szúnyog-oroszlán), míg a másik esetben kis különbség volt (zebra-ló). A kutatók azt a kérdést vizsgálták, hogy vajon mentális képeket használunk-e az állatok összhasonlítása során, ekkor ugyanis eltérő reakcióidőket kellene tapasztalnunk a két szituációban, vagy valamilyen absztraktabb szinten történik az összehasonlítás, és ekkor az állatok relatív mértekülönbsége nem igazán befolyásolhatná a reakcióidőt. Az adatokat a meretek.xlsx állományban rögzítettük. Vizsgáljuk meg, hogy van-e eltérés a két szituációban mért átlagos reakcióidő között.
+# Nicola, B., Snelgar, R. és Kemp, R. (2016). SPSS for Psychologists: And Everybody Else. Red Globe Press. pp. 120.
+
+# Beolvasás ----
+
+library(rio)
+meret <- import(file = "adat/meretek.xlsx")
+str(meret)
+
+# Előkészítés ----
+
+library(tidyr)
+meret$id <- factor(1:16)
+meret.l <- pivot_longer(data = meret, cols = 1:2,
+                        names_to = "meretkulonbseg",
+                        values_to = "ido")
+
+# Elemző ----
+library(psych)
+describe(meret)
+
+library(ggplot2)
+ggplot(data = meret.l, aes(x=ido, fill=meretkulonbseg)) + 
+  geom_density(alpha=0.5)
+
+p1 <- ggplot(data = meret.l, aes(x=meretkulonbseg, y=ido)) + 
+  stat_summary(fun=mean, geom = "point") +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width=0.1)
+p1
+
+# Páros t-próba
+
+t.test(ido~meretkulonbseg, data=meret.l, paired=T)
+wilcox.test(ido~meretkulonbseg, data=meret.l, paired=T)
+
+
+
+
+# Publikálás ----
+
+p2 <- p1 + theme_bw() + labs(x="", y="reakcióidő (ms)")
+ggsave(filename = "output/kep/kep1.png", plot = p2)
+
+
+
